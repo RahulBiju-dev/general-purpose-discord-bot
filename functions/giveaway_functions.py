@@ -57,23 +57,8 @@ async def end_giveaway_flow(bot, giveaway: dict) -> tuple[list[discord.Member], 
     except (discord.NotFound, discord.HTTPException):
         return winners, None
 
-    if winners:
-        winner_text = ", ".join(w.mention for w in winners)
-        em = discord.Embed(
-            title="🎉 Giveaway Ended!",
-            description=f"**Prize:** {giveaway['prize']}\n**Winner(s):** {winner_text}",
-            colour=discord.Colour.gold(),
-            timestamp=discord.utils.utcnow()
-        )
-    else:
-        em = discord.Embed(
-            title="🎉 Giveaway Ended!",
-            description=f"**Prize:** {giveaway['prize']}\n**Winner(s):** No valid entries!",
-            colour=discord.Colour.dark_grey(),
-            timestamp=discord.utils.utcnow()
-        )
-
-    em.set_footer(text=f"Hosted by user ID {giveaway['host_id']}")
+    from views import embeds
+    em = embeds.giveaway_ended_x0(giveaway['prize'], winners, giveaway['host_id'])
 
     try:
         await message.edit(embed=em)

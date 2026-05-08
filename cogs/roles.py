@@ -174,13 +174,7 @@ class roleCommands(commands.Cog):
             f"{r.mention} — **{len(r.members)}** member(s)"
             for r in guild_roles[:25]
         ]
-        em = discord.Embed(
-            title=f"🏷️ {ctx.guild.name} — Roles ({len(guild_roles)} total)",
-            description="\n".join(lines) if lines else "No roles found.",
-            colour=discord.Colour.blurple(),
-        )
-        if len(guild_roles) > 25:
-            em.set_footer(text=f"Showing top 25 of {len(guild_roles)} roles.")
+        em = embeds.roles_list_x0(ctx.guild.name, len(guild_roles), lines)
         await ctx.send(embed=em)
 
     # ── Mass Role Actions ─────────────────────────────────────────────────
@@ -296,15 +290,7 @@ class roleCommands(commands.Cog):
         role_ids = self._self_role_list(ctx.guild.id)
         roles = [ctx.guild.get_role(rid) for rid in role_ids]
         roles = [r for r in roles if r is not None]
-        em = discord.Embed(
-            title="🎭 Self-Assignable Roles",
-            colour=discord.Colour.blurple(),
-        )
-        if roles:
-            em.description = "\n".join(f"• {r.mention}" for r in roles)
-            em.set_footer(text="Use -sar get <role> to assign a role to yourself.")
-        else:
-            em.description = "No self-assignable roles are configured yet.\nAdmins can add them with `-sar add <role>`."
+        em = embeds.sar_menu_x0(roles)
         await ctx.send(embed=em)
 
     @sar.command(name="add")

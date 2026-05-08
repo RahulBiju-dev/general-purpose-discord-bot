@@ -4,7 +4,7 @@ from functions import database_functions as db
 from views import embeds
 
 
-class messageTracker(commands.Cog):
+class messageTrackerCommands(commands.Cog):
     """📨 Message tracking, snipe, and message utilities."""
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -105,4 +105,4 @@ class messageTracker(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(messageTracker(bot))
+    await bot.add_cog(messageTrackerCommands(bot))

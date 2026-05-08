@@ -5,22 +5,6 @@ from functions.database_functions import initialize_database
 with open('assets/config.json', 'rb') as f:
     config = json.load(f)
 
-EXTENSIONS = [
-    'moderation',
-    'messageTracker',
-    'automod',
-    'welcome',
-    'logging',
-    'fun',
-    'utility',
-    'roles',
-    'tickets',
-    'leveling',
-    'giveaways',
-    'starboard',
-    'customcommands',
-    'help',
-]
 
 class GPDB(commands.Bot):
     async def setup_hook(self):
@@ -53,10 +37,10 @@ class GPDB(commands.Bot):
 
 async def extensions(bot: commands.Bot, mode: str):
     if mode == "load":
-        for extension in EXTENSIONS:
+        for extension in config.get("extensions", []):
             try:
                 await bot.load_extension(f"cogs.{extension}")
             except Exception as err:
                 print(f"Failed to load {extension}: {err}")
     elif mode == "read":
-        return [extension for extension in EXTENSIONS]
+        return [extension for extension in config.get("extensions", [])]

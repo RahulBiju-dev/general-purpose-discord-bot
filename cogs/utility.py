@@ -65,13 +65,13 @@ class utilityCommands(commands.Cog):
         """Display detailed information about a user."""
         target = user or (ctx.author if isinstance(ctx.author, discord.Member) else None)
         if target and isinstance(target, discord.Member):
-            await ctx.send(embed=uf.build_userinfo_embed(target))
+            await ctx.send(embed=embeds.userinfo_x0(target))
 
     @commands.command(name="serverinfo", aliases=["si", "guildinfo"])
     async def serverinfo(self, ctx: commands.Context):
         """Display detailed information about the server."""
         if ctx.guild:
-            await ctx.send(embed=uf.build_serverinfo_embed(ctx.guild))
+            await ctx.send(embed=embeds.serverinfo_x0(ctx.guild))
 
 
     @commands.command(name="channelinfo", aliases=["ci"])
@@ -81,14 +81,8 @@ class utilityCommands(commands.Cog):
         if not target:
             return
 
-        em = discord.Embed(title=f"#{target.name}", colour=discord.Colour.blurple())
-        em.add_field(name="ID", value=f"`{target.id}`", inline=True)
-        em.add_field(name="Category", value=target.category.name if target.category else "None", inline=True)
-        em.add_field(name="Created", value=uf.format_timestamp(target.created_at), inline=True)
-        em.add_field(name="Topic", value=target.topic or "No topic set", inline=False)
-        em.add_field(name="Slowmode", value=f"{target.slowmode_delay}s" if target.slowmode_delay else "Off", inline=True)
-        em.add_field(name="NSFW", value="Yes" if target.is_nsfw() else "No", inline=True)
-        em.add_field(name="Position", value=str(target.position), inline=True)
+        created_str = uf.format_timestamp(target.created_at)
+        em = embeds.util_channelinfo_x0(target, created_str)
         await ctx.send(embed=em)
 
     @commands.command(name="afk")
@@ -118,15 +112,7 @@ class utilityCommands(commands.Cog):
             await ctx.send(embed=embeds.info_x0("You have no active reminders."))
             return
 
-        em = discord.Embed(title="⏰ Your Reminders", colour=discord.Colour.blurple())
-        for r in user_reminders[:10]:
-            em.add_field(
-                name=f"Reminder #{r['id']}",
-                value=f"**Message:** {r['message'][:100]}\n**Fires:** <t:{r['remind_at']}:R>",
-                inline=False
-            )
-        if len(user_reminders) > 10:
-            em.set_footer(text=f"Showing 10 of {len(user_reminders)} reminders")
+        em = embeds.util_reminders_x0(user_reminders)
         await ctx.send(embed=em)
 
     @commands.command(name="calc", aliases=["calculator", "math"])
@@ -139,8 +125,7 @@ class utilityCommands(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def create_embed(self, ctx: commands.Context, title: str, *, description: str):
         """Create a custom embed. Usage: embed "Title" Description text here"""
-        em = discord.Embed(title=title, description=description, colour=discord.Colour.blurple())
-        em.set_footer(text=f"Sent by {ctx.author.display_name}")
+        em = embeds.util_custom_embed_x0(title, description, ctx.author)
         await ctx.send(embed=em)
         try:
             await ctx.message.delete()
@@ -154,38 +139,19 @@ class utilityCommands(commands.Cog):
             total = ctx.guild.member_count or 0
             bots = sum(1 for m in ctx.guild.members if m.bot)
             humans = total - bots
-            em = discord.Embed(
-                title=f"👥 {ctx.guild.name} — Members",
-                colour=discord.Colour.blurple()
-            )
-            em.add_field(name="Total", value=f"**{total:,}**", inline=True)
-            em.add_field(name="Humans", value=f"**{humans:,}**", inline=True)
-            em.add_field(name="Bots", value=f"**{bots:,}**", inline=True)
+            em = embeds.util_membercount_x0(ctx.guild, total, humans, bots)
             await ctx.send(embed=em)
 
     @commands.command(name="invite")
     async def invite(self, ctx: commands.Context):
         """Get the bot's invite link."""
-        em = discord.Embed(
-            title="📨 Invite Me!",
-            description=f"[Click here to invite me to your server!](https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=8&scope=bot)",  # type: ignore
-            colour=discord.Colour.blurple()
-        )
+        em = embeds.util_invite_x0(self.bot.user.id) # type: ignore
         await ctx.send(embed=em)
 
     @commands.command(name="botinfo", aliases=["bi", "about"])
     async def botinfo(self, ctx: commands.Context):
         """Show information about the bot."""
-        em = discord.Embed(
-            title=f"ℹ️ About {self.bot.user.display_name}",  # type: ignore
-            colour=discord.Colour.blurple()
-        )
-        em.set_thumbnail(url=self.bot.user.display_avatar.url)  # type: ignore
-        em.add_field(name="Servers", value=f"**{len(self.bot.guilds)}**", inline=True)
-        em.add_field(name="Users", value=f"**{len(self.bot.users):,}**", inline=True)
-        em.add_field(name="Latency", value=f"**{int(self.bot.latency * 1000)}ms**", inline=True)
-        em.add_field(name="Commands", value=f"**{len(self.bot.commands)}**", inline=True)
-        em.add_field(name="Library", value="discord.py", inline=True)
+        em = embeds.util_botinfo_x0(self.bot)
         await ctx.send(embed=em)
 
 

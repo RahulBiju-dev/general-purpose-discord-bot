@@ -123,11 +123,7 @@ class levelingCommands(commands.Cog):
         if not roles:
             await ctx.send(embed=embeds.info_x0("No level role rewards set."))
             return
-        em = discord.Embed(title="🏆 Level Role Rewards", colour=discord.Colour.gold())
-        for lr in roles:
-            role = ctx.guild.get_role(lr["role_id"])
-            role_text = role.mention if role else f"Unknown ({lr['role_id']})"
-            em.add_field(name=f"Level {lr['level']}", value=role_text, inline=True)
+        em = embeds.level_roles_x0(ctx.guild, roles)
         await ctx.send(embed=em)
 
 

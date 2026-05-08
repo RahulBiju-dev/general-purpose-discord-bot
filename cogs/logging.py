@@ -70,25 +70,11 @@ class loggingCommands(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_channel_create(self, channel: discord.abc.GuildChannel):
-        em = discord.Embed(
-            title="📁 Channel Created",
-            description=f"**Name:** {channel.mention}\n**Type:** {str(channel.type).replace('_', ' ').title()}",
-            colour=discord.Colour.green(),
-            timestamp=discord.utils.utcnow()
-        )
-        em.set_footer(text=f"Channel ID: {channel.id}")
-        await self._send_log(channel.guild, em)
+        await self._send_log(channel.guild, embeds.channel_create_log(channel))
 
     @commands.Cog.listener()
     async def on_guild_channel_delete(self, channel: discord.abc.GuildChannel):
-        em = discord.Embed(
-            title="📁 Channel Deleted",
-            description=f"**Name:** #{channel.name}\n**Type:** {str(channel.type).replace('_', ' ').title()}",
-            colour=discord.Colour.red(),
-            timestamp=discord.utils.utcnow()
-        )
-        em.set_footer(text=f"Channel ID: {channel.id}")
-        await self._send_log(channel.guild, em)
+        await self._send_log(channel.guild, embeds.channel_delete_log(channel))
 
     # ── Config ────────────────────────────────────────────────────────────
 

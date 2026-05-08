@@ -2,5 +2,21 @@
     "prefix" : ["-"],
     "token" : "PUT TOKEN HERE",
     "owners" : [],
-    "default_color" : "#5865F2"
+    "default_color" : "#5865F2",
+    "extensions": [
+        "moderation",
+        "messageTracker",
+        "automod",
+        "welcome",
+        "logging",
+        "fun",
+        "utility",
+        "roles",
+        "tickets",
+        "leveling",
+        "giveaways",
+        "starboard",
+        "customcommands",
+        "help"
+    ]
 }

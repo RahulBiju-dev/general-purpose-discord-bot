@@ -38,15 +38,7 @@ class giveawayCommands(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def giveaway(self, ctx: commands.Context):
         """Giveaway commands."""
-        em = discord.Embed(
-            title="🎉 Giveaway Commands",
-            description=(
-                "`giveaway start <duration> <winners> <prize>` — Start a giveaway\n"
-                "`giveaway end <message_id>` — End a giveaway early\n"
-                "`giveaway reroll <message_id>` — Re-roll a giveaway winner\n"
-            ),
-            colour=discord.Colour.gold()
-        )
+        em = embeds.giveaway_commands_x0()
         await ctx.send(embed=em)
 
     @giveaway.command(name="start")

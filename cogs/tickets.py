@@ -19,18 +19,7 @@ class ticketCommands(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def ticket(self, ctx: commands.Context):
         """Ticket system commands."""
-        em = discord.Embed(
-            title="🎫 Ticket Commands",
-            description=(
-                "`ticket setup` — Send the ticket panel\n"
-                "`ticket setcategory <category>` — Set ticket category\n"
-                "`ticket setlog <channel>` — Set ticket log channel\n"
-                "`ticket close` — Close the current ticket\n"
-                "`ticket add <user>` — Add a user to this ticket\n"
-                "`ticket remove <user>` — Remove a user from this ticket\n"
-            ),
-            colour=discord.Colour.blurple()
-        )
+        em = embeds.ticket_commands_x0()
         await ctx.send(embed=em)
 
     @ticket.command(name="setup")

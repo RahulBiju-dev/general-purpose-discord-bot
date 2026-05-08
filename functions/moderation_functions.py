@@ -52,74 +52,18 @@ async def send_mod_log(guild: discord.Guild, embed: discord.Embed):
 
 def build_mod_log_embed(action: str, moderator: discord.Member | discord.User, target: discord.Member | discord.User, reason: str | None = None, duration: str | None = None, extra: str | None = None) -> discord.Embed:
     """Build a standard mod log embed."""
-    colours = {
-        "warn": discord.Colour.yellow(),
-        "mute": discord.Colour.orange(),
-        "unmute": discord.Colour.green(),
-        "kick": discord.Colour.dark_orange(),
-        "ban": discord.Colour.red(),
-        "tempban": discord.Colour.dark_red(),
-        "unban": discord.Colour.green(),
-        "softban": discord.Colour.dark_red(),
-    }
-    em = discord.Embed(
-        title=f"Moderation Action: {action.upper()}",
-        colour=colours.get(action, discord.Colour.greyple()),
-        timestamp=discord.utils.utcnow()
-    )
-    em.add_field(name="Target", value=f"{target.mention} (`{target.id}`)", inline=True)
-    em.add_field(name="Moderator", value=f"{moderator.mention}", inline=True)
-    if reason:
-        em.add_field(name="Reason", value=reason, inline=False)
-    if duration:
-        em.add_field(name="Duration", value=duration, inline=True)
-    if extra:
-        em.add_field(name="Details", value=extra, inline=False)
-    em.set_thumbnail(url=target.display_avatar.url)
-    em.set_footer(text=f"User ID: {target.id}")
-    return em
+    from views import embeds
+    return embeds.mod_log_x0(action, moderator, target, reason, duration, extra)
 
 
 def format_warnings_list(warnings: list[dict], user: discord.Member | discord.User) -> discord.Embed:
     """Format a list of warnings into a nice embed."""
-    em = discord.Embed(
-        title=f"Warnings for {user.display_name}",
-        description=f"**Total warnings:** {len(warnings)}",
-        colour=discord.Colour.yellow()
-    )
-    if not warnings:
-        em.description = f"{user.display_name} has no warnings."
-        em.colour = discord.Colour.green()
-        return em
-
-    for w in warnings[:25]:  # Discord embed field limit
-        em.add_field(
-            name=f"Warning #{w['id']}",
-            value=f"**Reason:** {w['reason']}\n**By:** <@{w['moderator_id']}>\n**Date:** <t:{w['timestamp']}:R>",
-            inline=False
-        )
-    if len(warnings) > 25:
-        em.set_footer(text=f"Showing 25 of {len(warnings)} warnings")
-    return em
+    from views import embeds
+    return embeds.warnings_list_x0(warnings, user)
 
 
 async def get_moderation_history_embed(guild_id: int, user: discord.Member | discord.User, limit: int = 10) -> discord.Embed:
     """Get a formatted embed of a user's mod history."""
     actions = await db.get_mod_actions(guild_id, user.id, limit)
-    em = discord.Embed(
-        title=f"Moderation History — {user.display_name}",
-        colour=discord.Colour.blurple()
-    )
-    if not actions:
-        em.description = "No moderation history found."
-        return em
-
-    for a in actions:
-        value = f"**By:** <@{a['moderator_id']}>"
-        if a.get("reason"):
-            value += f"\n**Reason:** {a['reason']}"
-        if a.get("duration"):
-            value += f"\n**Duration:** {a['duration']}"
-        value += f"\n**Date:** <t:{a['timestamp']}:R>"
-        em.add_field(name=f"{a['action'].upper()} (#{a['id']})", value=value, inline=False)
-    return em
+    from views import embeds
+    return embeds.moderation_history_x0(user, actions)

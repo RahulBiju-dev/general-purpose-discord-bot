@@ -42,8 +42,7 @@ class funCommands(commands.Cog):
     async def coinflip(self, ctx: commands.Context):
         """Flip a coin."""
         result = random.choice(["Heads", "Tails"])
-        emoji = "🪙"
-        em = discord.Embed(description=f"{emoji} **{result}!**", colour=discord.Colour.gold())
+        em = embeds.fun_coinflip_x0(emoji, result)
         await ctx.send(embed=em)
 
     @commands.command(name="roll", aliases=["dice"])
@@ -55,11 +54,7 @@ class funCommands(commands.Cog):
         results = [random.randint(1, sides) for _ in range(count)]
         result_text = ", ".join(f"**{r}**" for r in results)
         total = sum(results)
-        em = discord.Embed(
-            title=f"🎲 Rolling {count}d{sides}",
-            description=f"Results: {result_text}\n**Total: {total}**",
-            colour=discord.Colour.purple()
-        )
+        em = embeds.fun_roll_x0(count, sides, result_text, total)
         await ctx.send(embed=em)
 
     @commands.command(name="rps")
@@ -84,11 +79,7 @@ class funCommands(commands.Cog):
             result = "You **lose**! 😢"
             colour = discord.Colour.red()
 
-        em = discord.Embed(
-            title="Rock Paper Scissors",
-            description=f"You: {RPS_EMOJIS[choice]} **{choice.capitalize()}**\nBot: {RPS_EMOJIS[bot_choice]} **{bot_choice.capitalize()}**\n\n{result}",
-            colour=colour
-        )
+        em = embeds.fun_rps_x0(choice, RPS_EMOJIS[choice], bot_choice, RPS_EMOJIS[bot_choice], result, colour)
         await ctx.send(embed=em)
 
     @commands.command(name="meme")
@@ -101,13 +92,13 @@ class funCommands(commands.Cog):
             async with self.session.get("https://meme-api.com/gimme") as resp:
                 if resp.status == 200:
                     data = await resp.json()
-                    em = discord.Embed(
-                        title=data.get("title", "Meme"),
-                        colour=discord.Colour.random(),
-                        url=data.get("postLink", "")
+                    em = embeds.fun_meme_x0(
+                        data.get("title", "Meme"),
+                        data.get("postLink", ""),
+                        data.get("url", ""),
+                        data.get("ups", 0),
+                        data.get("subreddit", "memes")
                     )
-                    em.set_image(url=data.get("url", ""))
-                    em.set_footer(text=f"👍 {data.get('ups', 0)} | r/{data.get('subreddit', 'memes')}")
                     await ctx.send(embed=em)
                 else:
                     await ctx.send(embed=embeds.error_x0("Couldn't fetch a meme. Try again later!"))
@@ -124,11 +115,7 @@ class funCommands(commands.Cog):
             async with self.session.get("https://official-joke-api.appspot.com/random_joke") as resp:
                 if resp.status == 200:
                     data = await resp.json()
-                    em = discord.Embed(
-                        title="😂 Joke",
-                        description=f"**{data['setup']}**\n\n||{data['punchline']}||",
-                        colour=discord.Colour.random()
-                    )
+                    em = embeds.fun_joke_x0(data["setup"], data["punchline"])
                     await ctx.send(embed=em)
                 else:
                     await ctx.send(embed=embeds.error_x0("Couldn't fetch a joke. Try again!"))
@@ -147,12 +134,7 @@ class funCommands(commands.Cog):
     async def avatar(self, ctx: commands.Context, user: discord.Member | discord.User | None = None):
         """Display a user's avatar."""
         target = user or ctx.author
-        em = discord.Embed(
-            title=f"{target.display_name}'s Avatar",
-            colour=discord.Colour.blurple()
-        )
-        em.set_image(url=target.display_avatar.url)
-        em.set_footer(text=f"Requested by {ctx.author.display_name}")
+        em = embeds.fun_avatar_x0(target, ctx.author)
         await ctx.send(embed=em)
 
     @commands.command(name="banner")
@@ -162,11 +144,7 @@ class funCommands(commands.Cog):
         # Need to fetch the user to get banner
         fetched = await self.bot.fetch_user(target.id)
         if fetched.banner:
-            em = discord.Embed(
-                title=f"{target.display_name}'s Banner",
-                colour=discord.Colour.blurple()
-            )
-            em.set_image(url=fetched.banner.url)
+            em = embeds.fun_banner_x0(fetched)
             await ctx.send(embed=em)
         else:
             await ctx.send(embed=embeds.error_x0(f"{target.display_name} doesn't have a banner."))
@@ -201,11 +179,7 @@ class funCommands(commands.Cog):
             await ctx.send(embed=embeds.error_x0("Provide at least 2 choices separated by `|` or `,`!"))
             return
         choice = random.choice(options)
-        em = discord.Embed(
-            title="🤔 I choose...",
-            description=f"**{choice}**",
-            colour=discord.Colour.purple()
-        )
+        em = embeds.fun_choose_x0(choice)
         await ctx.send(embed=em)
 
     @commands.command(name="rate")
@@ -213,11 +187,7 @@ class funCommands(commands.Cog):
         """Rate something out of 10."""
         rating = random.randint(0, 10)
         bar = "█" * rating + "░" * (10 - rating)
-        em = discord.Embed(
-            title="⭐ Rating",
-            description=f"I rate **{thing}** a **{rating}/10**!\n{bar}",
-            colour=discord.Colour.gold()
-        )
+        em = embeds.fun_rate_x0(thing, rating, bar)
         await ctx.send(embed=em)
 
 

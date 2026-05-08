@@ -105,14 +105,12 @@ class starboardCommands(commands.Cog):
         if not ctx.guild:
             return
         config = await db.get_guild_config(ctx.guild.id)
-        em = discord.Embed(title="⭐ Starboard Settings", colour=discord.Colour.gold())
-        if config and config.get("starboard_channel_id"):
-            channel = ctx.guild.get_channel(config["starboard_channel_id"])
-            em.add_field(name="Channel", value=channel.mention if channel else "Not set", inline=True)
-            em.add_field(name="Threshold", value=str(config.get("starboard_threshold", 3)), inline=True)
-            em.add_field(name="Emoji", value=config.get("starboard_emoji", "⭐"), inline=True)
-        else:
-            em.description = "Starboard is not set up. Use `starboard setup <channel> [threshold]`."
+        is_setup = bool(config and config.get("starboard_channel_id"))
+        channel = ctx.guild.get_channel(config["starboard_channel_id"]) if is_setup else None
+        threshold = config.get("starboard_threshold", 3) if config else 3
+        emoji = config.get("starboard_emoji", "⭐") if config else "⭐"
+        
+        em = embeds.starboard_settings_x0(channel, threshold, emoji, is_setup)
         await ctx.send(embed=em)
 
     @starboard.command(name="setup")

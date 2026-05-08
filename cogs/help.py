@@ -1,13 +1,13 @@
 import discord, json
 from discord.ext import commands
 from views.views import HelpView
-
+from views import embeds
 
 with open('assets/config.json', 'rb') as f:
     config = json.load(f)
 
 
-class helpCommand(commands.Cog):
+class helpCommands(commands.Cog):
     """❓ Paginated help command."""
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -18,18 +18,8 @@ class helpCommand(commands.Cog):
         prefix = config["prefix"][0]
         pages = []
 
-        # Home page
-        home = discord.Embed(
-            title=f"📖 {self.bot.user.display_name} — Help",  # type: ignore
-            description=(
-                f"Use `{prefix}help <command>` for detailed info on a command.\n"
-                f"Use the buttons below to navigate through categories.\n\n"
-                f"**Prefix:** `{prefix}` or mention me"
-            ),
-            colour=discord.Colour.blurple()
-        )
-        if self.bot.user:
-            home.set_thumbnail(url=self.bot.user.display_avatar.url)
+        bot_name = str(self.bot.user.display_name) if self.bot.user else "Bot"
+        bot_avatar_url = self.bot.user.display_avatar.url if self.bot.user else None
 
         # List all cogs with their descriptions
         cog_list = []
@@ -41,8 +31,7 @@ class helpCommand(commands.Cog):
             if cmd_count > 0:
                 cog_list.append(f"**{doc.strip() or cog_name}** — `{cmd_count}` commands")
 
-        home.add_field(name="Categories", value="\n".join(cog_list) if cog_list else "No categories", inline=False)
-        home.set_footer(text=f"Page 1 | {len(self.bot.commands)} total commands")
+        home = embeds.help_home_x0(bot_name, bot_avatar_url, prefix, cog_list, len(self.bot.commands))
         pages.append(home)
 
         # Category pages
@@ -53,11 +42,7 @@ class helpCommand(commands.Cog):
             if not cmds:
                 continue
 
-            em = discord.Embed(
-                title=f"{cog.__doc__ or cog_name}",
-                colour=discord.Colour.blurple()
-            )
-
+            command_fields = []
             for cmd in sorted(cmds, key=lambda c: c.name):
                 aliases = f" (aliases: {', '.join(cmd.aliases)})" if cmd.aliases else ""
                 usage = f"`{prefix}{cmd.qualified_name}"
@@ -66,13 +51,12 @@ class helpCommand(commands.Cog):
                 usage += "`"
 
                 description = cmd.help or cmd.brief or "No description"
-                em.add_field(
-                    name=f"{usage}{aliases}",
-                    value=description[:100],
-                    inline=False
-                )
+                command_fields.append({
+                    "name": f"{usage}{aliases}",
+                    "value": description[:100]
+                })
 
-            em.set_footer(text=f"Page {len(pages) + 1} | Use {prefix}help <command> for details")
+            em = embeds.help_category_x0(f"{cog.__doc__ or cog_name}", command_fields, len(pages) + 1, prefix)
             pages.append(em)
 
         return pages
@@ -83,32 +67,20 @@ class helpCommand(commands.Cog):
         if command_name:
             cmd = self.bot.get_command(command_name)
             if not cmd:
-                await ctx.send(embed=discord.Embed(
-                    description=f"❌ Command `{command_name}` not found.",
-                    colour=discord.Colour.red()
-                ))
+                await ctx.send(embed=embeds.error_x0(f"Command `{command_name}` not found."))
                 return
 
             prefix = config["prefix"][0]
-            em = discord.Embed(
-                title=f"Command: {cmd.qualified_name}",
-                colour=discord.Colour.blurple()
-            )
-            em.add_field(name="Usage", value=f"`{prefix}{cmd.qualified_name} {cmd.signature}`", inline=False)
-            if cmd.aliases:
-                em.add_field(name="Aliases", value=", ".join(f"`{a}`" for a in cmd.aliases), inline=False)
-            if cmd.help:
-                em.add_field(name="Description", value=cmd.help, inline=False)
-
-            # Show permissions
+            
+            required_perms = False
             for check in cmd.checks:
                 check_name = getattr(check, "__qualname__", "")
                 if "has_permissions" in check_name:
-                    em.add_field(name="Required Permissions", value="Check command decorators", inline=False)
+                    required_perms = True
                     break
-
-            if cmd.cog:
-                em.set_footer(text=f"Category: {cmd.cog.__cog_name__}")
+            
+            cog_name = cmd.cog.__cog_name__ if cmd.cog else None
+            em = embeds.help_command_x0(cmd.qualified_name, cmd.signature, cmd.aliases, cmd.help, required_perms, cog_name, prefix)
 
             await ctx.send(embed=em)
         else:
@@ -118,4 +90,4 @@ class helpCommand(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(helpCommand(bot))
+    await bot.add_cog(helpCommands(bot))

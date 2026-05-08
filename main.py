@@ -1,7 +1,7 @@
 import discord, json
 from discord.ext import commands
 from assets import protocols
-
+from views import embeds
 with open('assets/config.json', 'rb') as f:
     config = json.load(f)
 
@@ -19,7 +19,7 @@ async def ready():
 
 @bot.command(name="ping")
 async def network_round_trip_latency(ctx: commands.Context):
-    em = discord.Embed(description=f"🏓 Pong! **{int(bot.latency * 1000)}ms**", colour=discord.Colour.green())
+    em = embeds.ping_x0(int(bot.latency * 1000))
     await ctx.send(embed=em)
 
 

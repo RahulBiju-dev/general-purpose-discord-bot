@@ -52,15 +52,7 @@ class customCommands(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def customcmd(self, ctx: commands.Context):
         """Custom command management."""
-        em = discord.Embed(
-            title="📋 Custom Commands",
-            description=(
-                "`customcmd add <name> <response>` — Create a custom command\n"
-                "`customcmd remove <name>` — Delete a custom command\n"
-                "`customcmd list` — View all custom commands\n"
-            ),
-            colour=discord.Colour.blurple()
-        )
+        em = embeds.customcmd_help_x0()
         await ctx.send(embed=em)
 
     @customcmd.command(name="add", aliases=["create"])

@@ -79,14 +79,8 @@ class automodCommands(commands.Cog):
         if not ctx.guild:
             return
         config = await af.get_automod_config(ctx.guild.id)
-        em = discord.Embed(title="🛡️ AutoMod Settings", colour=discord.Colour.blurple())
-        em.add_field(name="Enabled", value="✅" if config["enabled"] else "❌", inline=True)
-        em.add_field(name="Anti-Spam", value="✅" if config["anti_spam"] else "❌", inline=True)
-        em.add_field(name="Anti-Invite", value="✅" if config["anti_invite"] else "❌", inline=True)
-        em.add_field(name="Anti-Mass Mention", value="✅" if config["anti_massmention"] else "❌", inline=True)
-        em.add_field(name="Mass Mention Threshold", value=str(config["massmention_threshold"]), inline=True)
         badwords = await db.get_badwords(ctx.guild.id)
-        em.add_field(name="Blocked Words", value=str(len(badwords)), inline=True)
+        em = embeds.automod_settings_x0(config, len(badwords))
         await ctx.send(embed=em)
 
     @automod.command(name="enable")
@@ -164,11 +158,7 @@ class automodCommands(commands.Cog):
         """View the blocked words list."""
         if ctx.guild:
             words = await db.get_badwords(ctx.guild.id)
-            if words:
-                word_list = ", ".join(f"`{w}`" for w in words)
-                em = discord.Embed(title="🚫 Blocked Words", description=word_list, colour=discord.Colour.red())
-            else:
-                em = discord.Embed(title="🚫 Blocked Words", description="No blocked words set.", colour=discord.Colour.green())
+            em = embeds.automod_wordlist_x0(words)
             await ctx.send(embed=em)
 
 
